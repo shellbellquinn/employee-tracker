@@ -106,3 +106,94 @@ function viewRoles() {
 
     });
 }
+
+
+//remove data
+function removeEmployee() {
+    connection.query("SELECT * FROM employee;", function (err, res) {
+        if (err) throw err;
+        inquirer
+            .prompt([{
+                name: "choice",
+                type: "rawlist",
+                choices: function () {
+                    var choiceArray = [];
+                    for (var i = 0; i < res.length; i++) {
+                        choiceArray.push(res[i].first_name);
+                    }
+                    return choiceArray;
+                },
+                message: "Which Employee do you want to remove?"
+            },
+            ])
+            .then(function (answer) {
+                connection.query("DELETE FROM employee WHERE first_name = ?", [answer.choice],
+                    function (err) {
+                        if (err) throw err;
+                        console.log("Employee removed successfully");
+                        initialize();
+                    }
+                );
+            });
+    });
+}
+
+function removeDepartment() {
+    connection.query("SELECT department FROM department;", function (err, res) {
+        if (err) throw err;
+        inquirer
+            .prompt([{
+                name: "choice",
+                type: "rawlist",
+                choices: function () {
+                    var choiceArray = [];
+                    for (var i = 0; i < res.length; i++) {
+                        choiceArray.push(res[i].department);
+                    }
+                    return choiceArray;
+                },
+                message: "What department would you like to remove?"
+            },
+            ])
+            .then(function (answer) {
+                connection.query("DELETE FROM department WHERE department = ?", [answer.choice],
+                    function (err) {
+                        if (err) throw err;
+                        console.log("Departments deleted successfully");
+                        initialize();
+                    }
+                );
+            });
+    });
+}
+
+function removeRole() {
+    connection.query("SELECT * FROM role;", function (err, res) {
+        if (err) throw err;
+        inquirer
+            .prompt([{
+                name: "choice",
+                type: "rawlist",
+                choices: function () {
+                    var choiceArray = [];
+                    for (var i = 0; i < res.length; i++) {
+                        choiceArray.push(res[i].role_type);
+                    }
+                    return choiceArray;
+                },
+                message: "Which Employee do you want to remove?"
+            },
+            ])
+            .then(function (answer) {
+                connection.query("DELETE FROM role WHERE role_type = ?", [answer.choice],
+                    function (err) {
+                        if (err) throw err;
+                        console.log("Role removed successfully");
+                        initialize();
+                    }
+                );
+            });
+    });
+}
+
+
