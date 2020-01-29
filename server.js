@@ -197,3 +197,111 @@ function removeRole() {
 }
 
 
+
+//add data
+function addEmployee() {
+    connection.query("SELECT role.role_type,role.role_id,department.department,department.department_id  FROM role INNER JOIN department ON (department.department_id = role.department_id);",
+    function (err, res) {
+            if (err) throw err;
+            inquirer
+                .prompt([
+                    {
+                        name: "first_name",
+                        type: "input",
+                        message: "What is Employee's first name?"
+                    },
+                    {
+                        name: "last_name",
+                        type: "input",
+                        message: "What is Employee's last name?"
+                    },
+                    {
+                        name: "role",
+                        type: "rawlist",
+                        message: "What is employee's role?",
+                        choices: function () {
+                            var choiceArray = [];
+                            for (var i = 0; i < res.length; i++) {
+                                choiceArray.push(res[i].role_type);
+                            }
+                            return choiceArray;
+                        }
+                    },
+                    {
+                        name: "manager_id",
+                        type: "input",
+                        message: "What is Employee's Manager's id?"
+                        //change to adding manager later
+                    },
+
+                ])
+                .then(function (answer) {
+                    var role_id;
+                    for (var i = 0; i < res.length; i++) {
+                        if (res[i].role_type === answer.role) {
+                            role_id = res[i].role_id;
+                        }
+                    }
+                    connection.query("INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?,?,?,?) ", [answer.first_name, answer.last_name, role_id, answer.manager_id],
+                        function (err) {
+                            if (err) throw err;
+                            console.log("Added employee to database successfully");
+                            initialize();
+                        }
+                    );
+                });
+        });
+}
+
+function addDepartment() {
+    inquirer
+        .prompt([
+            {
+                name: "dep_name",
+                type: "input",
+                message: "What is the new Department name?"
+            }
+        ])
+        .then(function (answer) {
+            connection.query("INSERT INTO department (department) VALUES (?) ", [answer.dep_name],
+                function (err) {
+                    if (err) throw err;
+                    console.log("Added department to database successfully");
+                    initialize();
+                }
+            );
+        });
+}
+
+function addRole() {
+    inquirer
+        .prompt([
+            {
+                name: "role_type",
+                type: "input",
+                message: "What is the new Role?"
+            },
+            {
+                name: "salary",
+                type: "input",
+                message: "What is the Expected Salary?"
+            },
+            {
+                name: "department",
+                type: "input",
+                message: "What is the new department?"
+                //change to adding department based on role later
+            }
+        ])
+        .then(function (answer) {
+            connection.query("INSERT INTO role(role_type, salary, department_id) VALUES (?,?,?) ", [answer.role_type, answer.salary, answer.department],
+                function (err) {
+                    if (err) throw err;
+                    console.log("Added role to database successfully");
+                    initialize();
+                }
+            );
+        });
+}
+
+
