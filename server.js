@@ -304,4 +304,61 @@ function addRole() {
         });
 }
 
-
+//update data
+function updateEmployeeRole() {
+    connection.query("SELECT e.employee_id,e.first_name,r.role_type,r.role_id,e.role_id FROM employee AS e INNER JOIN role AS r ON (r.role_id = e.role_id);",
+        function (err, res) {
+            if (err) throw err;
+            inquirer
+                .prompt([{
+                    name: "choice",
+                    type: "rawlist",
+                    choices: function () {
+                        var choiceArray = [];
+                        for (var i = 0; i < res.length; i++) {
+                            choiceArray.push(res[i].first_name);
+                        }
+                        return choiceArray;
+                    },
+                    message: "Which Employee's role do you want to update?"
+                },
+                ])
+                .then(function (answer) {
+                    var role_id;
+                    for (var i = 0; i < res.length; i++) {
+                        if (res[i].first_name === answer.choice) {
+                            role_id = res[i].role_id;
+                            connection.query("SELECT role_type,role_id FROM role",
+                                function (err, roles) {
+                                    if (err) throw err;
+                                    inquirer
+                                        .prompt([
+                                            {
+                                            name: "role_type",
+                                            type: "rawlist",
+                                            choices: function () {
+                                                var choiceArray = [];
+                                                for (var i = 0; i < roles.length; i++) {
+                                                    choiceArray.push(roles[i].role_type);
+                                                }
+                                                return choiceArray;
+                                            },
+                                            message: "Select the Role you want to assign"
+                                        }
+                                        ]).then(function (subanswer) {
+                                            if (roles[i].role_type === subanswer.role_type) {
+                                                role_id = roles[i].role_id;
+                                                connection.query("UPDATE employee SET role_id=? WHERE first_name = ?", [role_id,answer.choice],
+                                                    function (err) {
+                                                        if (err) throw err;
+                                                        console.log("Role updated successfully for employee");
+                                                        initialize();
+                                                });
+                                            }
+                                        });
+                                });
+                        }
+                    }
+                });
+        });
+}
